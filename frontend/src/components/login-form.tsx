@@ -3,11 +3,6 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
-type TokenResponse = {
-  access: string;
-  refresh: string;
-};
-
 export default function LoginForm() {
   const router = useRouter();
   const [message, setMessage] = useState("");
@@ -23,6 +18,7 @@ export default function LoginForm() {
     try {
       const response = await fetch("/api/auth/token/", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           username: form.get("username"),
@@ -35,9 +31,6 @@ export default function LoginForm() {
         return;
       }
 
-      const tokens = (await response.json()) as TokenResponse;
-      localStorage.setItem("access_token", tokens.access);
-      localStorage.setItem("refresh_token", tokens.refresh);
       router.push("/synchronisation");
     } catch {
       router.push("/indisponible");

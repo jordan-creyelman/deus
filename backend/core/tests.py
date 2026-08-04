@@ -83,7 +83,7 @@ class JwtAuthenticationTests(APITestCase):
             password=self.password,
         )
 
-    def test_obtain_and_refresh_tokens(self):
+    def test_obtain_and_refresh_tokens_in_httponly_cookies(self):
         login_response = self.client.post(
             reverse("token-obtain-pair"),
             {"username": self.user.username, "password": self.password},
@@ -91,25 +91,20 @@ class JwtAuthenticationTests(APITestCase):
         )
 
         self.assertEqual(login_response.status_code, status.HTTP_200_OK)
-        self.assertIn("access", login_response.data)
-        self.assertIn("refresh", login_response.data)
-
-        refresh_response = self.client.post(
-            reverse("token-refresh"),
-            {"refresh": login_response.data["refresh"]},
-            format="json",
-        )
+        self.assertNotIn("access", login_response.data)
+        self.assertNotIn("refresh", login_response.data)
+        self.assertTrue(login_response.cookies["deus_access"]["httponly"])
+        self.assertTrue(login_response.cookies["deus_refresh"]["httponly"])
+        refresh_response = self.client.post(reverse("token-refresh"), format="json")
         self.assertEqual(refresh_response.status_code, status.HTTP_200_OK)
-        self.assertIn("access", refresh_response.data)
+        self.assertIn("deus_access", refresh_response.cookies)
+        self.assertTrue(refresh_response.cookies["deus_access"].value)
 
     def test_access_protected_route_with_token(self):
         login_response = self.client.post(
             reverse("token-obtain-pair"),
             {"username": self.user.username, "password": self.password},
             format="json",
-        )
-        self.client.credentials(
-            HTTP_AUTHORIZATION=f"Bearer {login_response.data['access']}"
         )
 
         response = self.client.get(reverse("current-user"))
@@ -121,6 +116,24 @@ class JwtAuthenticationTests(APITestCase):
         response = self.client.get(reverse("current-user"))
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_logout_deletes_and_blacklists_tokens(self):
+        self.client.post(
+            reverse("token-obtain-pair"),
+            {"username": self.user.username, "password": self.password},
+            format="json",
+        )
+        refresh = self.client.cookies["deus_refresh"].value
+
+        response = self.client.post(reverse("logout"), format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.cookies["deus_access"]["max-age"], 0)
+        self.assertEqual(response.cookies["deus_refresh"]["max-age"], 0)
+
+        self.client.cookies["deus_refresh"] = refresh
+        refresh_response = self.client.post(reverse("token-refresh"), format="json")
+        self.assertEqual(refresh_response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_reject_invalid_password(self):
         response = self.client.post(

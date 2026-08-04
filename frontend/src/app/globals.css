@@ -261,6 +261,24 @@ button {
   margin-top: 22px;
 }
 
+.logout-button {
+  background: transparent;
+  border: 1px solid var(--muted);
+  border-radius: 10px;
+  color: var(--muted);
+  margin-top: 26px;
+  min-height: 46px;
+  padding: 0 24px;
+  position: relative;
+  transition: border-color 160ms ease, color 160ms ease;
+  z-index: 2;
+}
+
+.logout-button:hover:not(:disabled) {
+  border-color: var(--foreground);
+  color: var(--foreground);
+}
+
 .unavailable-screen {
   align-items: center;
   background: var(--panel);

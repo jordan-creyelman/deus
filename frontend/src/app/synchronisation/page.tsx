@@ -1,4 +1,5 @@
 import ArchiveShell from "@/components/archive-shell";
+import LogoutButton from "@/components/logout-button";
 
 export default function SynchronisationPage() {
   return (
@@ -10,6 +11,7 @@ export default function SynchronisationPage() {
           <span>Synchronisation</span>
         </div>
         <p>Veuillez patienter.</p>
+        <LogoutButton />
       </section>
     </ArchiveShell>
   );
