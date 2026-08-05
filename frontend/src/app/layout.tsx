@@ -15,11 +15,12 @@ export const metadata: Metadata = {
     title: "DEUS ARCHIVE",
   },
   icons: {
-    apple: "/apple-touch-icon.png",
+    icon: "/assets/pwa/favicon.ico",
+    apple: "/assets/pwa/apple-touch-icon.png",
   },
 };
 
-export const viewport = { themeColor: "#0a1016" };
+export const viewport = { themeColor: "#0B0F14" };
 
 export default function RootLayout({
   children,

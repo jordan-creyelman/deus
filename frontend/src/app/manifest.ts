@@ -3,29 +3,30 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "DEUS ARCHIVE",
-    short_name: "DEUS",
-    description: "Votre archive mobile pour jeux de rôle.",
+    short_name: "DEUS ARCHIVE",
+    description: "DEUS ARCHIVE V0.05 — accès tutoriel limité",
     start_url: "/",
     scope: "/",
     display: "standalone",
-    background_color: "#020b1f",
-    theme_color: "#020b1f",
-    orientation: "portrait-primary",
+    orientation: "portrait",
+    background_color: "#0B0F14",
+    theme_color: "#0B0F14",
+    lang: "fr-BE",
     icons: [
       {
-        src: "/icon-192x192.png",
+        src: "/assets/pwa/icon-192.png",
         sizes: "192x192",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: "/icon-512x512.png",
+        src: "/assets/pwa/icon-512.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: "/icon-512x512.png",
+        src: "/assets/pwa/icon-maskable-512.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",

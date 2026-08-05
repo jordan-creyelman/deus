@@ -17,9 +17,7 @@ export default function PwaRegister() {
 
     window.addEventListener("load", registerServiceWorker);
 
-    return () => {
-      window.removeEventListener("load", registerServiceWorker);
-    };
+    return () => window.removeEventListener("load", registerServiceWorker);
   }, []);
 
   return null;
