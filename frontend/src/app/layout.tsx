@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import PwaRegister from "./pwa-register";
 
 export const metadata: Metadata = {
   applicationName: "DEUS ARCHIVE",
@@ -8,9 +9,18 @@ export const metadata: Metadata = {
     template: "%s | DEUS ARCHIVE",
   },
   description: "Votre archive mobile pour jeux de rôle.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "DEUS ARCHIVE",
+  },
+  icons: {
+    icon: "/assets/pwa/favicon.ico",
+    apple: "/assets/pwa/apple-touch-icon.png",
+  },
 };
 
-export const viewport = { themeColor: "#0a1016" };
+export const viewport = { themeColor: "#0B0F14" };
 
 export default function RootLayout({
   children,
@@ -19,7 +29,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
-      <body>{children}</body>
+      <body>
+        {children}
+        <PwaRegister />
+      </body>
     </html>
   );
 }
