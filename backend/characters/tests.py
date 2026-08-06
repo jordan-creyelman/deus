@@ -129,6 +129,8 @@ class CharacterApiTests(APITestCase):
         response = self.client.get(detail_url)
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data["error"]["code"], "not_found")
+        self.assertEqual(response.data["error"]["status"], 404)
 
     def test_api_requires_authentication(self):
         self.client.force_authenticate(user=None)
@@ -138,6 +140,10 @@ class CharacterApiTests(APITestCase):
         self.assertIn(
             response.status_code,
             (status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN),
+        )
+        self.assertIn(
+            response.data["error"]["code"],
+            ("authentication_required", "permission_denied"),
         )
 
     def test_reject_duplicate_name_for_same_owner(self):
@@ -150,4 +156,23 @@ class CharacterApiTests(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("name", response.data)
+        self.assertEqual(response.data["error"]["code"], "validation_error")
+        self.assertIn("name", response.data["error"]["details"])
+
+    def test_reject_invalid_character_values(self):
+        response = self.client.post(
+            self.list_url,
+            {"name": "Akasha", "level": 0, "strength": 0},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["error"]["status"], 400)
+        self.assertIn("level", response.data["error"]["details"])
+        self.assertIn("strength", response.data["error"]["details"])
+
+    def test_reject_unsupported_http_method(self):
+        response = self.client.put(self.list_url, {}, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(response.data["error"]["code"], "method_not_allowed")

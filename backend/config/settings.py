@@ -50,6 +50,10 @@ INSTALLED_APPS = [
     "characters.apps.CharactersConfig",
 ]
 
+REST_FRAMEWORK = {
+    "EXCEPTION_HANDLER": "core.exceptions.api_exception_handler",
+}
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
