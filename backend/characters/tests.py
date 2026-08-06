@@ -166,14 +166,59 @@ class CharacterApiTests(APITestCase):
     def test_reject_invalid_character_values(self):
         response = self.client.post(
             self.list_url,
-            {"name": "Akasha", "level": 0, "strength": 0},
+            {
+                "name": "Akasha",
+                "level": 0,
+                "experience": -1,
+                "strength": 0,
+                "current_health": -1,
+                "status": "unknown",
+            },
             format="json",
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data["error"]["status"], 400)
         self.assertIn("level", response.data["error"]["details"])
+        self.assertIn("experience", response.data["error"]["details"])
         self.assertIn("strength", response.data["error"]["details"])
+        self.assertIn("current_health", response.data["error"]["details"])
+        self.assertIn("status", response.data["error"]["details"])
+
+    def test_reject_duplicate_name_ignoring_case_and_spaces(self):
+        Character.objects.create(owner=self.owner, name="Akasha")
+
+        response = self.client.post(
+            self.list_url,
+            {"name": "  akasha  "},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("name", response.data["error"]["details"])
+
+    def test_clean_character_text_fields(self):
+        response = self.client.post(
+            self.list_url,
+            {"name": "  Akasha  ", "description": "  Une archiviste  "},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["name"], "Akasha")
+        self.assertEqual(response.data["description"], "Une archiviste")
+
+    def test_reject_short_name_and_long_description(self):
+        response = self.client.post(
+            self.list_url,
+            {"name": "A", "description": "x" * 2001},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        details = response.data["error"]["details"]
+        self.assertIn("name", details)
+        self.assertIn("description", details)
 
     def test_reject_unsupported_http_method(self):
         response = self.client.put(self.list_url, {}, format="json")
