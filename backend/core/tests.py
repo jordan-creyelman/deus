@@ -58,7 +58,7 @@ class RegisterApiTests(APITestCase):
         response = self.client.post(self.url, self.payload, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("password_confirm", response.data)
+        self.assertIn("password_confirm", response.data["error"]["details"])
         self.assertFalse(get_user_model().objects.exists())
 
     def test_reject_duplicate_email(self):
@@ -71,7 +71,7 @@ class RegisterApiTests(APITestCase):
         response = self.client.post(self.url, self.payload, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("email", response.data)
+        self.assertIn("email", response.data["error"]["details"])
 
 
 class JwtAuthenticationTests(APITestCase):
