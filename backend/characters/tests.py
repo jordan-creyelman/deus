@@ -58,6 +58,27 @@ class CharacterModelTests(TestCase):
 
         self.assertEqual(character.name, "Akasha")
 
+    def test_database_rejects_duplicate_name_ignoring_case_and_spaces(self):
+        Character.objects.create(owner=self.owner, name="Akasha")
+
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Character.objects.create(owner=self.owner, name="  akasha  ")
+
+    def test_database_rejects_invalid_character_data(self):
+        invalid_characters = (
+            Character(owner=self.owner, name="A"),
+            Character(owner=self.owner, name="Valid", level=0),
+            Character(owner=self.owner, name="Valid", strength=0),
+            Character(owner=self.owner, name="Valid", status="unknown"),
+            Character(owner=self.owner, name="Valid", description="x" * 2001),
+        )
+
+        for character in invalid_characters:
+            with self.subTest(character=character), self.assertRaises(
+                IntegrityError
+            ), transaction.atomic():
+                character.save()
+
 
 class CharacterApiTests(APITestCase):
     def setUp(self):
